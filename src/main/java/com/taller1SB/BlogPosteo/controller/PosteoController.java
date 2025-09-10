@@ -24,14 +24,17 @@ public class PosteoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Posteo> getById(@PathVariable Long id) {
+    public ResponseEntity<Posteo> getById(@PathVariable("id") Long id) {
         Posteo p = service.findById(id);
-        if (p == null) return ResponseEntity.notFound().build();
+        if (p == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(p);
     }
 
-    @PostMapping
+    @PostMapping("/crear")
     public ResponseEntity<Posteo> create(@RequestBody Posteo posteo) {
+        posteo.setId(null);
         service.save(posteo);
         return ResponseEntity.status(HttpStatus.CREATED).body(posteo);
     }
