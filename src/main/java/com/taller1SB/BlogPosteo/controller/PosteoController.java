@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/posteos")
@@ -24,9 +25,9 @@ public class PosteoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Posteo> getById(@PathVariable("id") Long id) {
-        Posteo p = service.findById(id);
-        if (p == null) {
+    public ResponseEntity<Optional<Posteo>> getById(@PathVariable("id") Long id) {
+        Optional<Posteo> p = service.findById(id);
+        if (p.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(p);
@@ -38,4 +39,28 @@ public class PosteoController {
         service.save(posteo);
         return ResponseEntity.status(HttpStatus.CREATED).body(posteo);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Posteo> update(@PathVariable("id") Long id, @RequestBody Posteo posteo) {
+        Optional<Posteo> existente = service.findById(id);
+        if (existente.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        posteo.setId(id);
+        service.save(posteo);
+        return ResponseEntity.ok(posteo);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+        Optional<Posteo> existente = service.findById(id);
+        if (existente.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se encontró el posteo con id " + id);
+        }
+        service.delete(id);
+        return ResponseEntity.ok("Se eliminó correctamente el posteo con id " + id);
+    }
+
+
 }

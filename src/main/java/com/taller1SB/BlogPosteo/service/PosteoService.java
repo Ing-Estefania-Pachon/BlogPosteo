@@ -5,6 +5,7 @@ import com.taller1SB.BlogPosteo.repository.IposteoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PosteoService implements IservicePosteo {
@@ -21,7 +22,7 @@ public class PosteoService implements IservicePosteo {
     }
 
     @Override
-    public Posteo findById(Long id) {
+    public Optional<Posteo> findById(Long id) {
         return repository.findById(id);
     }
 
@@ -29,5 +30,11 @@ public class PosteoService implements IservicePosteo {
     public void save(Posteo posteo) {
         repository.save(posteo);
     }
+
+    @Override
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
 }
 
