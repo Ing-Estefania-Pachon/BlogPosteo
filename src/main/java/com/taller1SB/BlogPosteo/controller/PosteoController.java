@@ -21,46 +21,55 @@ public class PosteoController {
 
     @GetMapping
     public List<Posteo> getAll() {
-        return service.findAll();
+        return service.listar();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Posteo>> getById(@PathVariable("id") Long id) {
-        Optional<Posteo> p = service.findById(id);
+    public ResponseEntity<Posteo> getById(@PathVariable("id") Long id) {
+        Optional<Posteo> p = service.obtenerPorId(id);
         if (p.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(p);
+        return ResponseEntity.ok(p.get());
     }
 
     @PostMapping("/crear")
     public ResponseEntity<Posteo> create(@RequestBody Posteo posteo) {
         posteo.setId(null);
-        service.save(posteo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(posteo);
+        Posteo guardado = service.guardar(posteo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Posteo> update(@PathVariable("id") Long id, @RequestBody Posteo posteo) {
-        Optional<Posteo> existente = service.findById(id);
+        Optional<Posteo> existente = service.obtenerPorId(id);
         if (existente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         posteo.setId(id);
-        service.save(posteo);
-        return ResponseEntity.ok(posteo);
+        Posteo actualizado = service.guardar(posteo);
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        Optional<Posteo> existente = service.findById(id);
+        Optional<Posteo> existente = service.obtenerPorId(id);
         if (existente.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("No se encontró el posteo con id " + id);
         }
-        service.delete(id);
+        service.eliminar(id);
         return ResponseEntity.ok("Se eliminó correctamente el posteo con id " + id);
     }
 
-
+    // endpoint para asignar autor a un post
+    @PutMapping("/{postId}/autor/{autorId}")
+    public ResponseEntity<Posteo> asignarAutor(@PathVariable Long postId, @PathVariable Long autorId) {
+        try {
+            Posteo actualizado = service.asignarAutor(postId, autorId);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }
